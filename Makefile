@@ -27,7 +27,7 @@ clean:
 	find . -name '*.pyo' -exec rm -f {} \;
 
 lint:
-	pycodestyle --config=setup.cfg hyperwallet
+	pycodestyle --config=setup.cfg hbase
 
 test:
 	python -m unittest -vvv
