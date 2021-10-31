@@ -1,0 +1,8 @@
+[build-system]
+requires = [
+    "requests>=2.26.0",
+    "requests-toolbelt>= 0.9.1",
+    "setuptools>=56.0.0",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"

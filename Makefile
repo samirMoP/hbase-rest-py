@@ -33,8 +33,7 @@ test:
 	python -m unittest -vvv
 
 build: clean
-	python setup.py check
-	python setup.py sdist
+	python -m build
 
 coverage: clean
 	coverage run setup.py test
