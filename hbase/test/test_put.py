@@ -20,7 +20,6 @@ class TestPut(TestCase):
         self.get = Get(client=self.client)
         self.delete = Delete(client=self.client)
 
-
     def tearDown(self):
         self.client.session.close()
 
@@ -89,9 +88,11 @@ class TestPut(TestCase):
         byte_value = cf_countries.get('row')[0]['cell'][0]['$']
         assert pickle.loads(byte_value) == ["US", "BA", "DE", "SE"]
 
-
-        print(self.delete.delete("test_tbl", "test@example.com", "cf:countries"))
-
+    def test_splits(self):
+        print(self.admin.table_create_or_update(
+            table_name="test_split",
+            params_list={"name":"cf", "SPLITS":['a', 'b', 'c']}
+        ))
 
 
 
