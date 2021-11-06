@@ -63,7 +63,9 @@ class Scan(object):
             headers=self.client.headers,
             timeout=30
         )
-        return result_parser(response.json())
+        if response.status_code == 204:
+            return
+        return result_parser(response.json()) if response.content is not None else None
 
 
 
