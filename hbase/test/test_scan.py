@@ -36,8 +36,13 @@ class TestScan(TestCase):
         self.client.session.close()
 
     def test_scan_default(self):
-        data = self.scan.scan('test_scan')
+        next, data = self.scan.scan('test_scan')
         self.assertEqual(len(data['row']), 100)
+        while next:
+            next, data = self.scan.scan_next()
+            assert next == False
+            assert data == None
+        assert self.scan.scanner is None
 
     def test_scan_with_params(self):
         scanner_def = build_base_scanner(
@@ -45,39 +50,41 @@ class TestScan(TestCase):
             startRow="row-9",
             endRow="row-99"
         )
-        data= self.scan.scan(
+        _, data= self.scan.scan(
             tbl_name="test_scan",
             scanner_payload=scanner_def
         )
         self.assertEqual(len(data['row']), 10)
+        self.assertEqual(self.scan.delete_scanner(), 200)
 
     def test_scan_prefix_filter(self):
         filter = build_prefix_filter(row_perfix="row-8")
-        data = self.scan.scan(
+        _, data = self.scan.scan(
             tbl_name="test_scan",
             scanner_payload=filter
         )
         self.assertEqual(len(data['row']), 11)
+        self.assertEqual(self.scan.delete_scanner(), 200)
 
     def test_scan_row_filter(self):
         filter = build_row_filter(
             row_value="row-1",
             operation="EQUAL",
             )
-        data = self.scan.scan(
+        _, data = self.scan.scan(
             tbl_name="test_scan",
             scanner_payload=filter
         )
         rows = data['row']
         self.assertEqual(len(rows), 1)
-
+        self.assertEqual(self.scan.delete_scanner(), 200)
 
     def test_scan_value_filter(self):
         filter = build_value_filter(
             value=10,
             operation="LESS",
         )
-        data = self.scan.scan(
+        _, data = self.scan.scan(
             tbl_name="test_scan",
             scanner_payload= filter
         )
@@ -87,6 +94,8 @@ class TestScan(TestCase):
             values.append(struct.unpack(">q", r['cell'][0]['$'])[0])
         for v in values:
             assert v < 10
+        self.assertEqual(self.scan.delete_scanner(), 200)
+
 
     def test_singe_column_value_filter(self):
         filter = build_single_column_value_filter(
@@ -95,7 +104,7 @@ class TestScan(TestCase):
             value=10,
             operation="LESS"
         )
-        data = self.scan.scan(
+        _, data = self.scan.scan(
             tbl_name="test_scan",
             scanner_payload=filter
         )
@@ -106,3 +115,4 @@ class TestScan(TestCase):
             values.append(struct.unpack(">q", r['cell'][0]['$'])[0])
         for v in values:
             assert v < 10
+        self.assertEqual(self.scan.delete_scanner(), 200)

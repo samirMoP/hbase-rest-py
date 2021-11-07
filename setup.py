@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="hbase-rest-py",
-    version="0.0.1",
+    version="0.1",
     author="Samir Ahmic",
     author_email="ahmic.samir@gmail.com",
     description="HBase client based on HBase REST",
@@ -17,10 +17,11 @@ setuptools.setup(
     },
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: Apache License Version 2",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "hbase"},
-    packages=setuptools.find_packages(where="hbase"),
+    install_requires = ['requests', 'requests-toolbelt'],
+    tests_require = ['mock'],
+    packages = setuptools.find_packages(exclude = ('tests', 'doc')),
     python_requires=">=3.6",
 )
