@@ -10,7 +10,7 @@ from hbase.rest_client import HBaseRESTClient
 
 class TestAdmin(TestCase):
     def setUp(self):
-        self.client = HBaseRESTClient(hosts_list=['http://localhost:8080'])
+        self.client = HBaseRESTClient(hosts_list=["http://localhost:8080"])
         self.admin = HBaseAdmin(client=self.client)
 
     def tearDown(self):
@@ -24,11 +24,11 @@ class TestAdmin(TestCase):
         assert isinstance(result_dict.get("LiveNodes"), list)
 
     def test_cluster_version(self):
-        result=self.admin.cluster_version()
+        result = self.admin.cluster_version()
         assert "Version" in json.loads(result)
 
     def test_namespaces(self):
-        result=self.admin.namespaces()
+        result = self.admin.namespaces()
         result_dict = json.loads(result)
         assert "Namespace" in json.loads(result)
         assert "default" in result_dict.get("Namespace")
@@ -57,44 +57,41 @@ class TestAdmin(TestCase):
         assert isinstance(result_dict.get("table"), list)
 
     def test_table_schema(self):
-        self.admin.table_create_or_update(table_name="test_tbl", params_list=[{"name":"cfTest"}])
-        result = self.admin.table_schema(table_name='test_tbl')
+        self.admin.table_create_or_update(
+            table_name="test_tbl", params_list=[{"name": "cfTest"}]
+        )
+        result = self.admin.table_schema(table_name="test_tbl")
         result_dict = json.loads(result)
-        self.assertEqual(result_dict.get("name"), 'test_tbl')
-        self.assertEqual(result_dict.get("ColumnSchema")[0]['name'], 'cfTest')
+        self.assertEqual(result_dict.get("name"), "test_tbl")
+        self.assertEqual(result_dict.get("ColumnSchema")[0]["name"], "cfTest")
 
     def test_table_create_or_update(self):
         self.admin.table_create_or_update(
             table_name="test_tbl",
-            params_list=[{"name": "cfTest", "BLOCKSIZE": "65537"}]
+            params_list=[{"name": "cfTest", "BLOCKSIZE": "65537"}],
         )
-        result = self.admin.table_schema(table_name='test_tbl')
+        result = self.admin.table_schema(table_name="test_tbl")
         result_dict = json.loads(result)
-        self.assertEqual(result_dict.get("name"), 'test_tbl')
-        self.assertEqual(result_dict.get("ColumnSchema")[0]['BLOCKSIZE'], '65537')
+        self.assertEqual(result_dict.get("name"), "test_tbl")
+        self.assertEqual(result_dict.get("ColumnSchema")[0]["BLOCKSIZE"], "65537")
 
     def test_table_regions(self):
         self.admin.table_create_or_update(
             table_name="test_tbl",
-            params_list=[{"name": "cfTest", "BLOCKSIZE": "65537"}]
+            params_list=[{"name": "cfTest", "BLOCKSIZE": "65537"}],
         )
         result = self.admin.table_regions(table_name="test_tbl")
         result_dict = json.loads(result)
-        assert result_dict['name'] == 'test_tbl'
+        assert result_dict["name"] == "test_tbl"
         assert isinstance(result_dict["Region"], list)
 
     def test_table_delete(self):
         self.admin.table_create_or_update(
             table_name="test_tbl2",
-            params_list=[{"name": "cfTest", "BLOCKSIZE": "65537"}]
+            params_list=[{"name": "cfTest", "BLOCKSIZE": "65537"}],
         )
         self.admin.table_delete(table_name="test_tbl2")
         result = self.admin.tables()
         result_dict = json.loads(result)
-        tbls_list = [a['name'] for a in result_dict['table']]
+        tbls_list = [a["name"] for a in result_dict["table"]]
         assert "test_tbl2" not in tbls_list
-
-
-
-
-

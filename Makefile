@@ -39,6 +39,6 @@ upload_test:
 	python3 -m twine upload --repository testpypi dist/*
 
 coverage: clean
-	coverage run setup.py test
+	coverage run --omit 'v-env/*' -m unittest
 	coverage html
 	coverage report
