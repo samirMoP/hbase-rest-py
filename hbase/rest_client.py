@@ -1,4 +1,5 @@
 import json
+import random
 from requests import Session
 
 
@@ -11,7 +12,7 @@ class HBaseRESTClient(object):
         self.timeout = 10
 
     def get_hbase_host(self):
-        return self.hosts[0]
+        return random.choice(self.hosts)
 
     def send_request(self, method, url_suffix, payload=None):
         response = None
