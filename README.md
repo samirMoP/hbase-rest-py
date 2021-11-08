@@ -45,6 +45,6 @@ Make sure you have running instance of HBase REST server by running
 	}],
 	"IS_META": "false"
 }'
-```
+
 
 
