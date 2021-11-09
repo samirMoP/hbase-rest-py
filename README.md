@@ -45,6 +45,19 @@ Make sure you have running instance of HBase REST server by running
 	}],
 	"IS_META": "false"
 }'
+# Create table for example
+>>> admin.table_create_or_update("messages", [{"name":"d"}])
+
+>>> from hbase.put import Put
+>>> put = Put(client=client)
+>>> put.put('messages', "test@example.com:22345", "d:to", "test2@example.com")
+''
+>>> from hbase.get import Get
+>>> get = Get(client)
+>>> get.get("messages", "test@example.com:22345")
+{'row': [{'key': b'test@example.com:22345', 'cell': [{'column': b'd:to', 'timestamp': 1636436005215, '$': b'test2@example.com'}]}]}
+
+
 
 
 
