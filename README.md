@@ -2,7 +2,7 @@
 **hbase-rest-py** is python library to interact with Apache HBase by using HBase REST API.
 
 ### Prerequisites
-**hbase-rest-py** requires at minimum Python 3.6 and above. HBase versions 2.4.2 and 2.4.8 have been used for library developemnt and testing and all unit tests have been passing on this versions.  
+**hbase-rest-py** requires at minimum Python 3.6 and above. HBase versions 2.4.2 and 2.4.8 have been used for library development and testing and all unit tests have been passing on this versions.  
 
 ### Installation 
 ``$ pip install hbase-rest-py``
