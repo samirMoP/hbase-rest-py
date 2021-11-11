@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="hbase-rest-py",
-    version="0.1",
+    version="0.2",
     author="Samir Ahmic",
     author_email="ahmic.samir@gmail.com",
     description="HBase client based on HBase REST",

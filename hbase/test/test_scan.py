@@ -22,12 +22,7 @@ class TestScan(TestCase):
 
         admin.table_create_or_update("test_scan", [{"name": "cf"}])
         for i in range(1, 101):
-            put.put(
-                tbl_name="test_scan",
-                row_key=f"row-{i}",
-                column_family="cf:age",
-                value=i,
-            )
+            put.put(tbl_name="test_scan", row_key=f"row-{i}", cell_map={"cf:age": i})
         client.session.close()
 
     def setUp(self):

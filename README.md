@@ -51,8 +51,8 @@ Make sure you have running instance of HBase REST server by running
 # Write some data to messages table
 >>> from hbase.put import Put
 >>> put = Put(client=client)
->>> put.put('messages', "test@example.com:22345", "d:to", "test2@example.com")
->>> put.put_multiple_cf("messages", "test@example.com:22345", {"d:m_id":23445, "d:body":"This is some message"})
+>>> put.put('messages', "test@example.com:22345", {"d:to":"test2@example.com"})
+>>> put.put("messages", "test@example.com:22345", {"d:m_id":23445, "d:body":"This is some message"})
 ''
 # Get data from messages table
 >>> from hbase.get import Get
@@ -64,7 +64,7 @@ Make sure you have running instance of HBase REST server by running
 
 # Put some more testing data
 >>> for i in range(1, 1000):
->>>     put.put_multiple_cf("messages", f"test{i}@example.com:{i}", {"d:m_id":i, "d:body":f"Message no {i}", "d:to":f"testx{i}@example.com"})
+>>>     put.put("messages", f"test{i}@example.com:{i}", {"d:m_id":i, "d:body":f"Message no {i}", "d:to":f"testx{i}@example.com"})
 
 # Get data from messages table with scan 
 # Get messages where m_id is LESS then 10

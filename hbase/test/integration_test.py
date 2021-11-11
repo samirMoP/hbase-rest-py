@@ -1,5 +1,5 @@
-import random
 import string
+import time
 from queue import Queue
 import random
 from hbase.rest_client import HBaseRESTClient
@@ -10,7 +10,9 @@ import logging
 import threading
 from threading import Thread
 
-logger = logging.getLogger()
+
+logging.basicConfig(level=logging.INFO)
+times = []
 
 
 def queue_put_payload(queue, payload):
@@ -67,42 +69,45 @@ def send_put(queue, total, put_instance):
                 break
             percents_done = (1.0 - (progress) / total) * 100
             if progress % 10000 == 0:
-                print(
+                logging.info(
                     " %s - %s  [%s]%% "
                     % (threading.current_thread().name, progress, round(percents_done))
                 )
             put_payload = queue.get()
-            put_instance.put_multiple_cf(
+            start = time.time()
+            put_instance.put(
                 tbl_name=put_payload["tbl"],
                 row_key=put_payload["row-key"],
-                cf_value_map=put_payload["cf_value_map"],
+                cell_map=put_payload["cf_value_map"],
             )
+            end = time.time()
+            times.append(end - start)
             queue.task_done()
         except Exception as e:
-            logger.exception("Error updating releases_releaseartistrole table")
+            logging.exception("Error updating releases_releaseartistrole table")
             queue.task_done()
 
 
 if __name__ == "__main__":
-    NUMBER_OF_THREDDS = 20
+    NUMBER_OF_THREDDS = 1
+    WRITE_ROWS = 20000
     client = HBaseRESTClient(hosts_list=["http://localhost:8080"])
     scan = Scan(client=client)
-    # admin = HBaseAdmin(client=client)
-    # admin.table_create_or_update(table_name='tbl_int', params_list=[{'name':'cf'}])
-    # put = Put(client=client)
-    # q = Queue()
-    # for i in range(1, 200000):
-    #    put_payload = buld_put_payload()
-    #    print(put_payload)
-    #    queue_put_payload(q, put_payload)
-    # print(f"Starting {NUMBER_OF_THREDDS} ....")
-    # for t in range(0, NUMBER_OF_THREDDS):
-    #    worker = Thread(target=send_put, args=(q, 200000, put))
-    #    worker.setDaemon(True)
-    #    worker.start()
-    # q.join()
-    next, data = scan.scan("tbl_int")
-    print(data)
-    while next:
-        next, data = scan.scan_next()
-        print(data)
+    admin = HBaseAdmin(client=client)
+    admin.table_create_or_update(table_name="tbl_int", params_list=[{"name": "cf"}])
+    put = Put(client=client)
+    q = Queue()
+    for i in range(1, WRITE_ROWS):
+        put_payload = buld_put_payload()
+        queue_put_payload(q, put_payload)
+    logging.info(f"Starting {NUMBER_OF_THREDDS} writer threads")
+    for t in range(0, NUMBER_OF_THREDDS):
+        worker = Thread(target=send_put, args=(q, WRITE_ROWS, put))
+        worker.setDaemon(True)
+        worker.start()
+    q.join()
+
+    avg_request_time = sum(times) / WRITE_ROWS
+    print(f"Max request time [ms] {max(times)*1000}")
+    print(f"Min request time [ms] {min(times) *1000}")
+    print(f"Average put op time [ms] {avg_request_time *1000}")

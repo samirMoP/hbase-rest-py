@@ -31,15 +31,14 @@ class TestPut(TestCase):
         self.put.put(
             tbl_name="test_tbl",
             row_key="samir@example.com",
-            column_family="cf:amount",
-            value=250.511234,
+            cell_map={"cf:amount": 250.511234},
         )
 
-        self.put.put("test_tbl", "samir@example.com", "cf:gender", "F")
+        self.put.put("test_tbl", "samir@example.com", {"cf:gender": "F"})
         self.put.put(
-            "test_tbl", "samir@example.com", "cf:countries", ["US", "BA", "DE", "SE"]
+            "test_tbl", "samir@example.com", {"cf:countries": ["US", "BA", "DE", "SE"]}
         )
-        self.put.put("test_tbl", "samir@example.com", "cf:id", 13455)
+        self.put.put("test_tbl", "samir@example.com", {"cf:id": 13455})
 
         # Test int value put/get
         cf_id = self.get.get("test_tbl", "samir@example.com", "cf:id")
@@ -61,10 +60,10 @@ class TestPut(TestCase):
         assert pickle.loads(byte_value) == ["US", "BA", "DE", "SE"]
 
         # Test multiple cf put
-        self.put.put_multiple_cf(
+        self.put.put(
             tbl_name="test_tbl",
             row_key="test@example.com",
-            cf_value_map={
+            cell_map={
                 "cf:gender": "M",
                 "cf:amount": 34.567,
                 "cf:countries": ["US", "BA", "DE", "SE"],
@@ -90,3 +89,34 @@ class TestPut(TestCase):
         cf_countries = self.get.get("test_tbl", "test@example.com", "cf:countries")
         byte_value = cf_countries.get("row")[0]["cell"][0]["$"]
         assert pickle.loads(byte_value) == ["US", "BA", "DE", "SE"]
+
+    def test_with_timestamp(self):
+        p = {
+            "Row": [
+                {
+                    "key": b64_encoder("timestamp6"),
+                    "Cell": [
+                        {
+                            "column": b64_encoder("cf:t"),
+                            "timestamp": round(time() * 1000),
+                            "$": b64_encoder("a6"),
+                        }
+                    ],
+                },
+                {
+                    "key": b64_encoder("timestamp7"),
+                    "Cell": [
+                        {
+                            "column": b64_encoder("cf:t"),
+                            "timestamp": round(time() * 1000),
+                            "$": b64_encoder("a6"),
+                        }
+                    ],
+                },
+            ]
+        }
+        self.client.send_request(
+            method="PUT",
+            url_suffix="/test_tbl/fakekey",
+            payload=p,
+        )

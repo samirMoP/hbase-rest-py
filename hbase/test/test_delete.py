@@ -28,12 +28,12 @@ class TestDelete(TestCase):
             table_name="test_tbl", params_list=[{"name": "cf"}, {"name": "cf2"}]
         )
 
-        self.put.put("test_tbl", "samir@example.com", "cf:gender", "F")
+        self.put.put("test_tbl", "samir@example.com", {"cf:gender": "F"})
         self.put.put(
-            "test_tbl", "samir@example.com", "cf:countries", ["US", "BA", "DE", "SE"]
+            "test_tbl", "samir@example.com", {"cf:countries": ["US", "BA", "DE", "SE"]}
         )
-        self.put.put("test_tbl", "samir@example.com", "cf:id", 13455)
-        self.put.put("test_tbl", "samir@example.com", "cf2:name", "samir")
+        self.put.put("test_tbl", "samir@example.com", {"cf:id": 13455})
+        self.put.put("test_tbl", "samir@example.com", {"cf2:name": "samir"})
 
         self.delete.delete("test_tbl", "samir@example.com", "cf:gender")
 
