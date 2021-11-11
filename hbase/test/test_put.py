@@ -90,7 +90,23 @@ class TestPut(TestCase):
         byte_value = cf_countries.get("row")[0]["cell"][0]["$"]
         assert pickle.loads(byte_value) == ["US", "BA", "DE", "SE"]
 
-    def test_with_timestamp(self):
+        # Test put with explicit timestamp
+        status = self.put.put(
+            tbl_name="test_tbl",
+            row_key="timestamp_test",
+            cell_map={
+                "cf:gender": "M",
+                "cf:amount": 34.567,
+                "cf:countries": ["US", "BA", "DE", "SE"],
+                "cf:id": 4567890,
+            },
+            timestamp=5555,
+        )
+        data = self.get.get("test_tbl", "timestamp_test")
+        timestamp = data["row"][0]["cell"][0]["timestamp"]
+        self.assertEqual(timestamp, 5555)
+
+    def test_bulk_put_raw(self):
         p = {
             "Row": [
                 {
@@ -120,3 +136,22 @@ class TestPut(TestCase):
             url_suffix="/test_tbl/fakekey",
             payload=p,
         )
+
+    def test_build_bulk_payload(self):
+        test_data = [("timestamp77", {"cf:col1": "value1"})]
+        paylod = self.put._build_bulk_payload(test_data)
+        paylod3 = self.put._build_payload(
+            row_key="timestamp77", cell_map={"cf:col1": "value1"}
+        )
+        self.assertEqual(paylod, paylod3)
+        self.assertTrue(isinstance(paylod["Row"], list))
+        self.assertTrue(isinstance(json.dumps(paylod), str))
+
+    def test_bulk_put(self):
+        bulk_payload = [
+            ("row_key1", {"cf:col1": "value1", "cf:col2": "value2"}),
+            ("row_key2", {"cf:col1": "value1", "cf:col2": "value2"}),
+        ]
+        self.put.bulk("test_tbl", rows=bulk_payload, timestamp=round(time() * 1000))
+        data = self.get.get("test_tbl", "row_key2", "cf:col1")
+        self.assertEqual(data["row"][0]["cell"][0]["$"], b"value1")
