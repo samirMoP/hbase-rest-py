@@ -155,3 +155,19 @@ class TestPut(TestCase):
         self.put.bulk("test_tbl", rows=bulk_payload, timestamp=round(time() * 1000))
         data = self.get.get("test_tbl", "row_key2", "cf:col1")
         self.assertEqual(data["row"][0]["cell"][0]["$"], b"value1")
+
+        bulk_payload2 = [
+            ("test_bulk1", {"cf:age": 28, "cf:gender": "M", "cf:amount": 2500.45}),
+            ("test_bulk2", {"cf:age": 29, "cf:gender": "F", "cf:amount": 2501.45}),
+            ("test_bulk3", {"cf:age": 30, "cf:gender": "M", "cf:amount": 2502.45}),
+            ("test_bulk4", {"cf:age": 30, "cf:gender": "M", "cf:amount": 2502.45}),
+            ("test_bulk5", {"cf:age": 30, "cf:gender": "M", "cf:amount": 2502.45}),
+            ("test_bulk6", {"cf:age": 30, "cf:gender": "M", "cf:amount": 2502.45}),
+            ("test_bulk7", {"cf:age": 30, "cf:gender": "M", "cf:amount": 2502.45}),
+            ("test_bulk8", {"cf:age": 30, "cf:gender": "M", "cf:amount": 2502.45}),
+            ("test_bulk9", {"cf:age": 30, "cf:gender": "M", "cf:amount": 2502.45}),
+            ("test_bulk10", {"cf:age": 30, "cf:gender": "M", "cf:amount": 2502.45}),
+        ]
+        self.put.bulk("test_tbl", rows=bulk_payload2)
+        data = self.get.get("test_tbl", "test_bulk7", "cf:gender")
+        self.assertEqual(data["row"][0]["cell"][0]["$"], b"M")
