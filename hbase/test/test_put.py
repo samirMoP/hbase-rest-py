@@ -148,6 +148,9 @@ class TestPut(TestCase):
         self.assertTrue(isinstance(json.dumps(paylod), str))
 
     def test_bulk_put(self):
+        self.admin.table_create_or_update(
+            table_name="test_tbl", params_list=[{"name": "cf"}]
+        )
         bulk_payload = [
             ("row_key1", {"cf:col1": "value1", "cf:col2": "value2"}),
             ("row_key2", {"cf:col1": "value1", "cf:col2": "value2"}),
