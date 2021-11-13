@@ -44,3 +44,18 @@ def result_parser(json_result):
         cells = []
         key = {}
     return {"row": result}
+
+
+class Bytes(object):
+
+    @staticmethod
+    def to_int(bytes_value):
+        return struct.unpack(">q", bytes_value)[0]
+
+    @staticmethod
+    def to_float(bytes_value):
+        return struct.unpack(">d", bytes_value)[0]
+
+    @staticmethod
+    def to_string(bytes_values):
+        return bytes_values.decode('utf-8')
