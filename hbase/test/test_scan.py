@@ -62,7 +62,7 @@ class TestScan(TestCase):
 
     def test_scan_with_params(self):
         scanner_def = build_base_scanner(
-            type="row", startRow="row-9", endRow="row-99", column=["cf:email"]
+            startRow="row-9", endRow="row-99", column=["cf:email"]
         )
         _, data = self.scan.scan(tbl_name="test_scan", scanner_payload=scanner_def)
         self.assertEqual(len(data["row"]), 10)

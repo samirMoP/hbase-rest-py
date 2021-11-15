@@ -9,42 +9,27 @@ from hbase.utils import b64_encoder
 
 def build_base_xml(
     batch=1000,
-    type=None,
-    startRow=None,
-    endRow=None,
-    startTime=None,
-    endTime=None,
+    startRow="",
+    endRow="",
+    startTime="",
+    endTime="",
     maxVersions=1,
     column=None,
 ):
-    if type is None:
-        xml = et.Element("Scanner", batch=str(batch), maxVersions=str(maxVersions))
-    if type == "row":
-        xml = et.Element(
-            "Scanner",
-            batch=str(batch),
-            startRow=b64_encoder(startRow),
-            endRow=b64_encoder(endRow),
-            maxVersions=str(maxVersions),
-        )
-    if type == "time":
-        xml = et.Element(
-            "Scanner",
-            batch=str(batch),
-            startTime=str(startTime),
-            endRow=str(endTime),
-            maxVersions=str(maxVersions),
-        )
-    if type == "row-time":
-        xml = et.Element(
-            "Scanner",
-            batch=str(batch),
-            startRow=b64_encoder(startRow),
-            endRow=b64_encoder(endRow),
-            startTime=str(startTime),
-            endRo=str(endTime),
-            maxVersions=str(maxVersions),
-        )
+    default = {
+        "batch": str(batch),
+        "startRow": b64_encoder(startRow) if startRow != "" else "",
+        "endRow": b64_encoder(endRow) if endRow != "" else "",
+        "startTime": str(startTime),
+        "endTime": str(endTime),
+        "maxVersions": str(maxVersions),
+    }
+    for k in list(default.keys()):
+        if default[k] in [None, "None", ""]:
+            del default[k]
+
+    xml = et.Element("Scanner", attrib=default)
+
     if isinstance(column, list) and len(column) > 0:
         for c in column:
             column = et.SubElement(xml, "column")
@@ -54,16 +39,15 @@ def build_base_xml(
 
 def build_base_scanner(
     batch=1000,
-    type=None,
-    startRow=None,
-    endRow=None,
-    startTime=None,
-    endTime=None,
+    startRow="",
+    endRow="",
+    startTime="",
+    endTime="",
     maxVersions=1,
     column=None,
 ):
     xml = build_base_xml(
-        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+        batch, startRow, endRow, startTime, endTime, maxVersions, column
     )
     return et.tostring(xml).decode("utf-8")
 
@@ -71,16 +55,15 @@ def build_base_scanner(
 def build_prefix_filter(
     row_perfix,
     batch=1000,
-    type=None,
-    startRow=None,
-    endRow=None,
-    startTime=None,
-    endTime=None,
+    startRow="",
+    endRow="",
+    startTime="",
+    endTime="",
     maxVersions=1,
     column=None,
 ):
     xml = build_base_xml(
-        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+        batch, startRow, endRow, startTime, endTime, maxVersions, column
     )
 
     filter = et.SubElement(xml, "filter")
@@ -93,17 +76,16 @@ def build_row_filter(
     operation,
     comparator="binary",
     batch=1000,
-    type=None,
-    startRow=None,
-    endRow=None,
-    startTime=None,
-    endTime=None,
+    startRow="",
+    endRow="",
+    startTime="",
+    endTime="",
     maxVersions=1,
     column=None,
 ):
     # {"op": "LESS", "type": "RowFilter", "comparator": {"value": "dGVzdFJvd09uZS0y", "type": "BinaryComparator"}}
     xml = build_base_xml(
-        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+        batch, startRow, endRow, startTime, endTime, maxVersions, column
     )
 
     filter = et.SubElement(xml, "filter")
@@ -126,18 +108,17 @@ def build_value_filter(
     operation,
     comparator="binary",
     batch=1000,
-    type=None,
-    startRow=None,
-    endRow=None,
-    startTime=None,
-    endTime=None,
+    startRow="",
+    endRow="",
+    startTime="",
+    endTime="",
     maxVersions=1,
     column=None,
 ):
     # {"op":"EQUAL","type":"ValueFilter","comparator":{"value":"dGVzdFZhbHVlT25l","type":"BinaryComparator"}}
 
     xml = build_base_xml(
-        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+        batch, startRow, endRow, startTime, endTime, maxVersions, column
     )
     filter = et.SubElement(xml, "filter")
     if comparator == "binary":
@@ -161,11 +142,10 @@ def build_single_column_value_filter(
     operation,
     comparator="binary",
     batch=1000,
-    type=None,
-    startRow=None,
-    endRow=None,
-    startTime=None,
-    endTime=None,
+    startRow="",
+    endRow="",
+    startTime="",
+    endTime="",
     maxVersions=1,
     column=None,
 ):
@@ -193,7 +173,7 @@ def build_single_column_value_filter(
         :return:
     """
     xml = build_base_xml(
-        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+        batch, startRow, endRow, startTime, endTime, maxVersions, column
     )
     filter = et.SubElement(xml, "filter")
     if comparator == "binary":
@@ -216,16 +196,15 @@ def build_single_column_value_filter(
 def build_column_prefix_filter(
     column_prefix,
     batch=1000,
-    type=None,
-    startRow=None,
-    endRow=None,
-    startTime=None,
-    endTime=None,
+    startRow="",
+    endRow="",
+    startTime="",
+    endTime="",
     maxVersions=1,
     column=None,
 ):
     xml = build_base_xml(
-        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+        batch, startRow, endRow, startTime, endTime, maxVersions, column
     )
     filter = et.SubElement(xml, "filter")
     filter.text = '{"type":"ColumnPrefixFilter", "value": "%s"}' % (
