@@ -47,7 +47,6 @@ def result_parser(json_result):
 
 
 class Bytes(object):
-
     @staticmethod
     def to_int(bytes_value):
         return struct.unpack(">q", bytes_value)[0]
@@ -58,4 +57,4 @@ class Bytes(object):
 
     @staticmethod
     def to_string(bytes_values):
-        return bytes_values.decode('utf-8')
+        return bytes_values.decode("utf-8")

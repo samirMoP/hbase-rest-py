@@ -1,4 +1,5 @@
 import struct
+import json
 from unittest import TestCase
 from hbase.admin import HBaseAdmin
 from hbase.rest_client import HBaseRESTClient
@@ -11,6 +12,7 @@ from hbase.scan_filter_helper import (
     build_value_filter,
     build_single_column_value_filter,
 )
+from hbase.utils import b64_encoder, result_parser
 
 
 class TestScan(TestCase):
@@ -22,7 +24,22 @@ class TestScan(TestCase):
 
         admin.table_create_or_update("test_scan", [{"name": "cf"}])
         for i in range(1, 101):
-            put.put(tbl_name="test_scan", row_key=f"row-{i}", cell_map={"cf:age": i})
+            put.put(
+                tbl_name="test_scan",
+                row_key=f"row-{i}",
+                cell_map={
+                    "cf:age": i,
+                    "cf:email": f"ex{i}@grr.la",
+                    "cf:text": "this is just text test",
+                },
+            )
+        client.session.close()
+
+    @classmethod
+    def tearDownClass(cls):
+        client = HBaseRESTClient(hosts_list=["http://localhost:8080"])
+        admin = HBaseAdmin(client)
+        admin.table_delete("test_scan")
         client.session.close()
 
     def setUp(self):
@@ -44,13 +61,15 @@ class TestScan(TestCase):
         assert self.scan.scanner is None
 
     def test_scan_with_params(self):
-        scanner_def = build_base_scanner(type="row", startRow="row-9", endRow="row-99")
+        scanner_def = build_base_scanner(
+            type="row", startRow="row-9", endRow="row-99", column=["cf:email"]
+        )
         _, data = self.scan.scan(tbl_name="test_scan", scanner_payload=scanner_def)
         self.assertEqual(len(data["row"]), 10)
         self.assertEqual(self.scan.delete_scanner(), 200)
 
     def test_scan_prefix_filter(self):
-        filter = build_prefix_filter(row_perfix="row-8")
+        filter = build_prefix_filter(row_perfix="row-8", column=["cf:email"])
         _, data = self.scan.scan(tbl_name="test_scan", scanner_payload=filter)
         self.assertEqual(len(data["row"]), 11)
         self.assertEqual(self.scan.delete_scanner(), 200)
@@ -92,3 +111,18 @@ class TestScan(TestCase):
         for v in values:
             assert v < 10
         self.assertEqual(self.scan.delete_scanner(), 200)
+
+    # def test_table_scan(self):
+    #     url_sufix = "/test_scan/*?column=cf:email&startrow=row-99&endrow=row-9&reversed=true"
+    #     data = self.client.send_request(
+    #         method="GET",
+    #         url_suffix=url_sufix
+    #     )
+    #     print(result_parser(json.loads(data)))
+
+    def test_value_filter_substring(self):
+        filter = build_value_filter(
+            value="this", operation="EQUAL", comparator="substring"
+        )
+        _, result = self.scan.scan(tbl_name="test_scan", scanner_payload=filter)
+        self.assertEqual(len(result["row"]), 100)

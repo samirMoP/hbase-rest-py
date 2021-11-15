@@ -15,6 +15,7 @@ def build_base_xml(
     startTime=None,
     endTime=None,
     maxVersions=1,
+    column=None,
 ):
     if type is None:
         xml = et.Element("Scanner", batch=str(batch), maxVersions=str(maxVersions))
@@ -44,6 +45,10 @@ def build_base_xml(
             endRo=str(endTime),
             maxVersions=str(maxVersions),
         )
+    if isinstance(column, list) and len(column) > 0:
+        for c in column:
+            column = et.SubElement(xml, "column")
+            column.text = b64_encoder(c)
     return xml
 
 
@@ -55,8 +60,11 @@ def build_base_scanner(
     startTime=None,
     endTime=None,
     maxVersions=1,
+    column=None,
 ):
-    xml = build_base_xml(batch, type, startRow, endRow, startTime, endTime, maxVersions)
+    xml = build_base_xml(
+        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+    )
     return et.tostring(xml).decode("utf-8")
 
 
@@ -69,8 +77,11 @@ def build_prefix_filter(
     startTime=None,
     endTime=None,
     maxVersions=1,
+    column=None,
 ):
-    xml = build_base_xml(batch, type, startRow, endRow, startTime, endTime, maxVersions)
+    xml = build_base_xml(
+        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+    )
 
     filter = et.SubElement(xml, "filter")
     filter.text = '{"type":"PrefixFilter", "value":"%s"}' % (b64_encoder(row_perfix))
@@ -88,9 +99,12 @@ def build_row_filter(
     startTime=None,
     endTime=None,
     maxVersions=1,
+    column=None,
 ):
     # {"op": "LESS", "type": "RowFilter", "comparator": {"value": "dGVzdFJvd09uZS0y", "type": "BinaryComparator"}}
-    xml = build_base_xml(batch, type, startRow, endRow, startTime, endTime, maxVersions)
+    xml = build_base_xml(
+        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+    )
 
     filter = et.SubElement(xml, "filter")
     if comparator == "binary":
@@ -118,10 +132,13 @@ def build_value_filter(
     startTime=None,
     endTime=None,
     maxVersions=1,
+    column=None,
 ):
     # {"op":"EQUAL","type":"ValueFilter","comparator":{"value":"dGVzdFZhbHVlT25l","type":"BinaryComparator"}}
 
-    xml = build_base_xml(batch, type, startRow, endRow, startTime, endTime, maxVersions)
+    xml = build_base_xml(
+        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+    )
     filter = et.SubElement(xml, "filter")
     if comparator == "binary":
         filter.text = (
@@ -130,7 +147,7 @@ def build_value_filter(
         )
     else:
         filter.text = (
-            '{"op":"%s","type":"ValueFilter", "comparator": {"value": "%s", "type": "RegexStringComparator"} }'
+            '{"op":"%s","type":"ValueFilter", "comparator": {"value": "%s", "type": "SubstringComparator"}}'  # SubstringComparator
             % (operation, value)
         )
 
@@ -150,6 +167,7 @@ def build_single_column_value_filter(
     startTime=None,
     endTime=None,
     maxVersions=1,
+    column=None,
 ):
     """
     {
@@ -174,23 +192,43 @@ def build_single_column_value_filter(
         :param maxVersions:
         :return:
     """
-    xml = build_base_xml(batch, type, startRow, endRow, startTime, endTime, maxVersions)
+    xml = build_base_xml(
+        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+    )
     filter = et.SubElement(xml, "filter")
     if comparator == "binary":
-        filter.text = (
-            '{"op":"%s","type":"SingleColumnValueFilter","family":"%s", "qualifier":"%s", "comparator": {"value": "%s", "type": "BinaryComparator"}}'
-            % (
-                operation,
-                b64_encoder(family),
-                b64_encoder(qualifier),
-                b64_encoder(value),
-            )
+        filter.text = '{"op":"%s","type":"SingleColumnValueFilter","family":"%s", "qualifier":"%s", "comparator": {"value": "%s", "type": "BinaryComparator"}}' % (
+            operation,
+            b64_encoder(family),
+            b64_encoder(qualifier),
+            b64_encoder(value),
         )
 
     else:
         filter.text = (
-            '{"op":"%s","type":"SingleColumnValueFilter","family":"%s", "qualifier":"%s", "comparator": {"value": "%s", "type": "RegexStringComparator"}}'
+            '{"op":"%s","type":"SingleColumnValueFilter","family":"%s", "qualifier":"%s", "comparator": {"value": "%s", "type": "SubstringComparator"}}'
             % (operation, b64_encoder(family), b64_encoder(qualifier), value)
         )
 
+    return et.tostring(xml).decode("utf-8")
+
+
+def build_column_prefix_filter(
+    column_prefix,
+    batch=1000,
+    type=None,
+    startRow=None,
+    endRow=None,
+    startTime=None,
+    endTime=None,
+    maxVersions=1,
+    column=None,
+):
+    xml = build_base_xml(
+        batch, type, startRow, endRow, startTime, endTime, maxVersions, column
+    )
+    filter = et.SubElement(xml, "filter")
+    filter.text = '{"type":"ColumnPrefixFilter", "value": "%s"}' % (
+        b64_encoder(column_prefix)
+    )
     return et.tostring(xml).decode("utf-8")
