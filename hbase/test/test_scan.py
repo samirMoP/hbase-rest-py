@@ -12,7 +12,7 @@ from hbase.scan_filter_helper import (
     build_value_filter,
     build_single_column_value_filter,
 )
-from hbase.utils import b64_encoder, result_parser
+from hbase.utils import result_parser
 
 
 class TestScan(TestCase):
@@ -112,13 +112,14 @@ class TestScan(TestCase):
             assert v < 10
         self.assertEqual(self.scan.delete_scanner(), 200)
 
-    # def test_table_scan(self):
-    #     url_sufix = "/test_scan/*?column=cf:email&startrow=row-99&endrow=row-9&reversed=true"
-    #     data = self.client.send_request(
-    #         method="GET",
-    #         url_suffix=url_sufix
-    #     )
-    #     print(result_parser(json.loads(data)))
+    def test_table_scan(self):
+        url_sufix = "/test_scan/*?column=cf:email&startrow=row-99&endrow=row-9&reversed=true"
+        data = self.client.send_request(
+            method="GET",
+            url_suffix=url_sufix
+        )
+        result = result_parser(json.loads(data))
+        self.assertEqual(result['row'][0]['key'], b'row-99')
 
     def test_value_filter_substring(self):
         filter = build_value_filter(
