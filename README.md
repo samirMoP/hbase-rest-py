@@ -15,6 +15,32 @@
 - [x] 2.4.2
 - [x] 2.4.8
 
+### Unit test coverage
+```bash
+coverage report
+Name                             Stmts   Miss  Cover
+----------------------------------------------------
+hbase/__init__.py                    0      0   100%
+hbase/admin.py                      28      1    96%
+hbase/delete.py                     10      0   100%
+hbase/get.py                        19      0   100%
+hbase/put.py                        28      0   100%
+hbase/rest_client.py                25      0   100%
+hbase/scan.py                       34      2    94%
+hbase/scan_filter_helper.py         47      6    87%
+hbase/test/__init__.py               0      0   100%
+hbase/test/test_admin.py            72      0   100%
+hbase/test/test_delete.py           36      0   100%
+hbase/test/test_get.py              45      0   100%
+hbase/test/test_put.py              74      0   100%
+hbase/test/test_rest_client.py      40      0   100%
+hbase/test/test_scan.py             86      0   100%
+hbase/test/test_utils.py            19      0   100%
+hbase/utils.py                      40      0   100%
+----------------------------------------------------
+TOTAL                              603      9    99%
+```
+
 ### Prerequisites
 **hbase-rest-py** requires at minimum Python 3.6 and above. HBase versions 2.4.2 and 2.4.8 have been used for library development and testing and all unit tests have been passing on this versions.  
 
@@ -97,6 +123,7 @@ Make sure you have running instance of HBase REST server by running
 >>> >>> scan.delete_scanner()
 200
 ````
-There is also example Flask app on https://github.com/samirMoP/hbase-inbox using this package for implementing simple REST service for storing user messages. 
-
-
+There is also example Flask app on https://github.com/samirMoP/hbase-inbox using this package 
+for implementing simple REST service for storing user messages. 
+For usage details please refer to unit tests in test folder. All unit test have 
+been written to use HBase REST server instead of mock data. 
