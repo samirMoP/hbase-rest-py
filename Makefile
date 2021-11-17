@@ -38,6 +38,10 @@ build: clean
 upload_test:
 	python3 -m twine upload --repository testpypi dist/*
 
+release:
+	python3 -m twine upload dist/*
+
+
 coverage: clean
 	coverage run --omit 'v-env/*' -m unittest
 	coverage html
