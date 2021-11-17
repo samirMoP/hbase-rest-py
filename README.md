@@ -1,6 +1,20 @@
 # hbase-rest-py
 **hbase-rest-py** is python library to interact with Apache HBase by using HBase REST API.
 
+### Features
+- Admin api for tables and namespaces
+- HBase Put, Get, Scan and Delete apis
+- Helpers for building HBase scan filters (PrefixFilter, SingleColumnValueFilter etc)
+
+### TO-DO list
+- [ ] Build documentation
+- [ ] Client side failover when using multiple HBase REST servers
+- [ ] Implement Protobuf client
+
+### Tested HBase versions
+- [x] 2.4.2
+- [x] 2.4.8
+
 ### Prerequisites
 **hbase-rest-py** requires at minimum Python 3.6 and above. HBase versions 2.4.2 and 2.4.8 have been used for library development and testing and all unit tests have been passing on this versions.  
 
@@ -83,5 +97,6 @@ Make sure you have running instance of HBase REST server by running
 >>> >>> scan.delete_scanner()
 200
 ````
-There is also example Flask app on https://github.com/samirMoP/hbase-inbox using this package for impementig simple REST service for storing user messages. 
+There is also example Flask app on https://github.com/samirMoP/hbase-inbox using this package for implementing simple REST service for storing user messages. 
+
 

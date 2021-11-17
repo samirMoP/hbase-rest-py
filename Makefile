@@ -1,7 +1,6 @@
 help:
 	@echo "  env         install all production dependencies"
 	@echo "  dev         install all production and development dependencies"
-	@echo "  docs        build documentation"
 	@echo "  clean       clean working directory"
 	@echo "  lint        check style with pycodestyle"
 	@echo "  test        run tests"
