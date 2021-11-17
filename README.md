@@ -82,3 +82,6 @@ Make sure you have running instance of HBase REST server by running
 # Releaase scanner resource
 >>> >>> scan.delete_scanner()
 200
+````
+There is also example Flask app on https://github.com/samirMoP/hbase-inbox using this package for impementig simple REST service for storing user messages. 
+
